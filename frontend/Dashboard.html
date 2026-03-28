@@ -1,0 +1,44 @@
+<h2>Dashboard</h2>
+
+<p id="roleText"></p>
+
+<input type="file" id="file"><br><br>
+
+<input id="assigned_to" placeholder="Assign to user (admin only)"><br><br>
+
+<button id="uploadBtn" onclick="upload()">Upload File</button>
+<button onclick="download()">Download File</button>
+
+<script>
+let role = localStorage.getItem("role");
+let username = localStorage.getItem("username");
+
+document.getElementById("roleText").innerText = "Logged in as: " + role;
+
+// Hide upload if not admin
+if (role !== "admin") {
+    document.getElementById("uploadBtn").style.display = "none";
+    document.getElementById("assigned_to").style.display = "none";
+}
+
+function upload() {
+    let formData = new FormData();
+    formData.append("file", file.files[0]);
+    formData.append("role", role);
+    formData.append("username", username);
+    formData.append("assigned_to", document.getElementById("assigned_to").value);
+
+    fetch("http://127.0.0.1:5000/upload", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => alert(data.message));
+}
+
+function download() {
+    let filename = prompt("Enter file name:");
+
+    window.open(`http://127.0.0.1:5000/download/${filename}?role=${role}&username=${username}`);
+}
+</script>
